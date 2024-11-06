@@ -132,7 +132,8 @@ li {
 .btns {
     display: flex;
     justify-content: flex-end;
-    gap: 5px;
+    gap: 10px;
+    font-size: large;
 }
 
 .btns button {

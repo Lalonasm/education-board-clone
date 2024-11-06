@@ -1,8 +1,10 @@
 const studentCreateForm = document.getElementById('student-create-form');
 const studentResultForm = document.getElementById('student-result-form');
+const studentResultViewForm = document.getElementById('student-result-view');
 const studentDataList = document.getElementById("student-data-list");
+
 const msg = document.querySelector('.msg');
-const btnClose = document.querySelector('btn-close')
+const btnClose = document.querySelectorAll('btn-close');
 
 
 //show all data
@@ -11,7 +13,7 @@ const getAllStudents = () => {
     const data = JSON.parse(localStorage.getItem("students"));
     let listData = "";
     if (data) {
-        data.map((item, index) => {
+        data.reverse().map((item, index) => {
             listData += `
            <tr>
              <td>${index + 1}</td>
@@ -24,7 +26,7 @@ const getAllStudents = () => {
 
               ${item.results
                     ?
-                    '<button class="btn btn-sm btn-success"  > View Result</button> '
+                    '<button class="btn btn-sm btn-success" onclick="getViewResultForm(\'' + item.id + '\')"  data-bs-toggle="modal" data-bs-target="#student-result-view" > View Result</button> '
                     :
                     '<button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#student-result-form" onclick="addStudentResultModal(\'' + item.id + "')\" > Add Result</button>"
 
@@ -84,7 +86,7 @@ studentCreateForm.onsubmit = (e) => {
         localStorage.setItem('students', JSON.stringify(oldData))
 
         e.target.reset();
-        btnClose.click();
+        btnClose.forEach((item) => item.click());
         getAllStudents();
     }
 }
@@ -94,6 +96,10 @@ studentCreateForm.onsubmit = (e) => {
 const addStudentResultModal = (id) => {
     studentResultForm.querySelector('input[name="id"]').value = id
 }
+
+
+
+
 
 //student result form
 studentResultForm.onsubmit = (e) => {
@@ -115,11 +121,12 @@ studentResultForm.onsubmit = (e) => {
                 ...item,
                 results: {
                     bangla: data.bangla,
-                    english: data.englis,
+                    english: data.english,
                     math: data.math,
                     science: data.science,
                     social: data.social,
                     religion: data.religion
+
                 }
             }
         }
@@ -132,8 +139,71 @@ studentResultForm.onsubmit = (e) => {
     localStorage.setItem("students", JSON.stringify(updatedData))
 
     e.target.reset();
-    btnClose.click();
+    btnClose.forEach((item) => item.click());
     getAllStudents();
 
 }
+
+//get view result data
+const getViewResultForm = (id) => {
+    const studentData = JSON.parse(localStorage.getItem("students"));
+
+    const viewData = studentData.find((data) => data.id == id);
+
+    studentResultViewForm.querySelector('input[name="bangla"]').value =
+        viewData.results.bangla;
+    studentResultViewForm.querySelector('input[name="english"]').value =
+        viewData.results.english;
+    studentResultViewForm.querySelector('input[name="math"]').value =
+        viewData.results.math;
+    studentResultViewForm.querySelector('input[name="science"]').value =
+        viewData.results.science;
+    studentResultViewForm.querySelector('input[name="social"]').value =
+        viewData.results.social;
+    studentResultViewForm.querySelector('input[name="religion"]').value =
+        viewData.results.religion;
+    studentResultViewForm.querySelector('input[name="id"]').value = id;
+};
+
+//   student result view form
+
+studentResultViewForm.onsubmit = (e) => {
+    e.preventDefault();
+
+    const form_data = new FormData(e.target);
+    const data = Object.fromEntries(form_data);
+
+
+    console.log(data);
+    // update new result
+    const oldData = JSON.parse(localStorage.getItem('students'));
+
+
+    const updateData = oldData.map((item) => {
+        if (item.id === data.id) {
+            return {
+                ...item,
+                results: {
+                    bangla: data.bangla,
+                    english: data.english,
+                    math: data.math,
+                    science: data.science,
+                    social: data.social,
+                    religion: data.religion
+
+                }
+            }
+        }
+        else {
+            return item;
+        }
+    })
+
+
+    localStorage.setItem('students', JSON.stringify(updateData));
+    btnClose.forEach((item) => item.click());
+    getAllStudents();
+
+}
+
 
